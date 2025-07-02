@@ -1,5 +1,0 @@
-import serial
-
-# serial set
-ser = serial.Serial('COM3',115200)
-ser.write(b"A=3,B=2,C=1\n")
