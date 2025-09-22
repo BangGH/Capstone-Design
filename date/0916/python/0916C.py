@@ -1,22 +1,16 @@
 import serial
 
 py_serial = serial.Serial(
-    
-    # Window
-    port='COM8',
-    
-    # 보드 레이트 (통신 속도)
+    port='COM5',
     baudrate=115200,
 )
 
+print("sirial on")
+
 while True:
-    py_serial.write(bytes('hello\n', encoding='ascii'))
     if py_serial.readable():
-        
-        # 들어온 값이 있으면 값을 한 줄 읽음 (BYTE 단위로 받은 상태)
-        # BYTE 단위로 받은 response 모습 : b'\xec\x97\x86\xec\x9d\x8c\r\n'
-        response = py_serial.readline()
-        
-        # 디코딩 후, 출력 (가장 끝의 \n을 없애주기위해 슬라이싱 사용)
-        print(response[:len(response)-1].decode())
-    
+        response = py_serial.readline()  # 한 줄 수신
+        try:
+            print(response.decode().strip())  # 디코딩 + 개행 제거
+        except UnicodeDecodeError:
+            print(f"수신데이터(디코딩불가): {response}")
