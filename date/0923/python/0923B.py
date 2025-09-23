@@ -46,7 +46,7 @@ def update_c():
 
 # 시리얼 설정
 py_serial = serial.Serial(
-    port='COM5',
+    port='COM10',
     baudrate=115200,
 )
 
@@ -83,9 +83,36 @@ dm_thread = threading.Thread(target=decode_dm_thread, daemon=True)
 qr_thread.start()
 dm_thread.start()
 
+def serial_listener():
+    while True:
+        if py_serial.readable():
+            data = py_serial.readline().decode().strip()
+            if data:
+                print("받은 데이터:", data)
+                # 👉 받은 순간 원하는 함수 호출
+
+
+# 수신 스레드 시작
+thread = threading.Thread(target=serial_listener, daemon=True)
+thread.start()
+
+# 실시간 재고 stm에게 전송
+print(a_val, b_val, c_val)
+py_serial.write(b'$')
+time.sleep(0.05)
+py_serial.write(a_val)
+time.sleep(0.05)
+py_serial.write(b_val)
+time.sleep(0.05)
+py_serial.write(c_val)
+time.sleep(0.05)
+py_serial.write(b'\r\n')
+time.sleep(0.1)
+
 # 루프
 frame_skip = 10
 frame_count = 0
+
 
 while True:
     ret, frame = cap.read()
@@ -105,27 +132,55 @@ while True:
                 update_count('fill_A', -3)
                 update_count('fill_B', -2)
                 update_count('fill_C', -1)
-                py_serial.write(b'A')
-                time.sleep(1)
+                py_serial.write(b'!')
+                time.sleep(0.05)
+                py_serial.write(b'a3')
+                time.sleep(0.05)
+                py_serial.write(b'b2')
+                time.sleep(0.05)
+                py_serial.write(b'c1')
+                time.sleep(0.05)
+                py_serial.write(b'\r\n')
+                time.sleep(0.1)
             if data.startswith("A=3,B=0,C=2"):
                 update_count('fill_A', -3)
                 update_count('fill_B', 0)
                 update_count('fill_C', -2)
-                py_serial.write(b'B')
-                time.sleep(1)
+                py_serial.write(b'!')
+                time.sleep(0.05)
+                py_serial.write(b'a3')
+                time.sleep(0.05)
+                py_serial.write(b'b0')
+                time.sleep(0.05)
+                py_serial.write(b'c2')
+                time.sleep(0.05)
+                py_serial.write(b'\r\n')
+                time.sleep(0.1)
             if data.startswith("A=0,B=1,C=3"):
                 update_count('fill_A', 0)
                 update_count('fill_B', -1)
                 update_count('fill_C', -3)
-                py_serial.write(b'C')
-                time.sleep(1)
+                py_serial.write(b'!')
+                time.sleep(0.05)
+                py_serial.write(b'a0')
+                time.sleep(0.05)
+                py_serial.write(b'b1')
+                time.sleep(0.05)
+                py_serial.write(b'c3')
+                time.sleep(0.05)
+                py_serial.write(b'\r\n')
+                time.sleep(0.1)
 
         # DataMatrix 처리
         for obj in dm_results:
             data = obj.data.decode('utf-8')
             print(f"Data Matrix: {data}")
             if data.startswith("88"):
-                handle_specific_code(data)
+                py_serial.write(b'@')
+                time.sleep(0.05)
+                py_serial.write(b'a3')
+                time.sleep(0.05)
+                py_serial.write(b'\r\n')
                 time.sleep(1)
 
     cv2.imshow('ESP32-CAM Stream', frame)
