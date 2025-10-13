@@ -97,6 +97,7 @@ thread = threading.Thread(target=serial_listener, daemon=True)
 thread.start()
 
 # 실시간 재고 stm에게 전송
+'''
 print(a_val, b_val, c_val)
 py_serial.write(b'$')
 time.sleep(0.05)
@@ -108,6 +109,7 @@ py_serial.write(c_val)
 time.sleep(0.05)
 py_serial.write(b'\r\n')
 time.sleep(0.1)
+'''
 
 # 루프
 frame_skip = 10
@@ -176,6 +178,7 @@ while True:
             data = obj.data.decode('utf-8')
             print(f"Data Matrix: {data}")
             if data.startswith("88"):
+                update_a()
                 py_serial.write(b'@')
                 time.sleep(0.05)
                 py_serial.write(b'a3')
